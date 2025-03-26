@@ -41,7 +41,7 @@ early_success() { echo -e "\033[0;32m✅ ${1}\033[0m"; }
 # Install package manager and gum
 install_package_manager() {
     if [ "$OS_TYPE" = "mac" ]; then
-        if ! command -v brew &> /dev/null; then
+        if ! command -v brew >/dev/null 2>&1; then
             early_log "Installing Homebrew..."
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
             eval "$(/opt/homebrew/bin/brew shellenv)"
@@ -50,7 +50,7 @@ install_package_manager() {
 }
 
 install_gum() {
-    if ! command -v gum &> /dev/null; then
+    if ! command -v gum >/dev/null 2>&1; then
         echo -e "\033[0;34mℹ️  Installing gum for better UI...\033[0m"
         if [ "$OS_TYPE" = "mac" ]; then
             brew install gum
@@ -94,7 +94,7 @@ install_dependencies() {
 
 # Early NVM setup before anything else
 setup_early_nvm() {
-    if ! command -v nvm &> /dev/null; then
+    if ! command -v nvm >/dev/null 2>&1; then
         early_log "Setting up NVM..."
         # Download and run the nvm installation script
         curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
@@ -104,7 +104,7 @@ setup_early_nvm() {
         [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
         
         # Verify installation
-        if ! command -v nvm &> /dev/null; then
+        if ! command -v nvm >/dev/null 2>&1; then
             early_error "Failed to install NVM. Please install it manually:"
             echo "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash"
             exit 1
@@ -126,7 +126,7 @@ setup_early_nvm() {
     fi
 
     # Install pnpm
-    if ! command -v pnpm &> /dev/null; then
+    if ! command -v pnpm >/dev/null 2>&1; then
         early_log "Installing pnpm..."
         if ! npm install -g pnpm; then
             early_error "Failed to install pnpm"
@@ -145,7 +145,7 @@ trap 'cleanup' EXIT INT TERM
 
 # Basic functions first - fallback logging before gum is installed
 log_error() { 
-    if command -v gum &> /dev/null; then
+    if command -v gum >/dev/null 2>&1; then
         gum style --foreground 1 "❌ ${1}"
     else
         echo -e "\033[0;31m❌ ${1}\033[0m"
@@ -153,7 +153,7 @@ log_error() {
 }
 
 log_success() {
-    if command -v gum &> /dev/null; then
+    if command -v gum >/dev/null 2>&1; then
         gum style --foreground 2 "✅ ${1}"
     else
         echo -e "\033[0;32m✅ ${1}\033[0m"
@@ -161,7 +161,7 @@ log_success() {
 }
 
 log_info() {
-    if command -v gum &> /dev/null; then
+    if command -v gum >/dev/null 2>&1; then
         gum style --foreground 4 "ℹ️  ${1}"
     else
         echo -e "\033[0;34mℹ️  ${1}\033[0m"
@@ -170,7 +170,7 @@ log_info() {
 
 log_verbose() { 
     if [ "$VERBOSE" = true ]; then
-        if command -v gum &> /dev/null; then
+        if command -v gum >/dev/null 2>&1; then
             gum style --foreground 3 "🔍 ${1}"
         else
             echo -e "\033[1;33m🔍 ${1}\033[0m"
@@ -553,7 +553,7 @@ build_and_start() {
     
     # Check Node.js version
     REQUIRED_NODE_VERSION=22
-    if ! command -v node &> /dev/null; then
+    if ! command -v node >/dev/null 2>&1; then
         log_error "Node.js is not installed or not in PATH"
         exit 1
     fi
@@ -565,7 +565,7 @@ build_and_start() {
     fi
 
     # Check for pnpm
-    if ! command -v pnpm &> /dev/null; then
+    if ! command -v pnpm >/dev/null 2>&1; then
         log_error "pnpm is not installed. Please install pnpm before running the script."
         exit 1
     fi
@@ -605,7 +605,7 @@ check_existing_installation() {
         [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
         
         # Check for required commands
-        if command -v node &> /dev/null && command -v pnpm &> /dev/null; then
+        if command -v node >/dev/null 2>&1 && command -v pnpm >/dev/null 2>&1; then
             # Verify Node.js version
             REQUIRED_NODE_VERSION=22
             CURRENT_NODE_VERSION=$(node -v | cut -d'.' -f1 | sed 's/v//')
@@ -691,7 +691,7 @@ check_existing_installation() {
 install_nvm() {
     log_verbose "Installing NVM..."
     
-    if ! command -v nvm &> /dev/null; then
+    if ! command -v nvm >/dev/null 2>&1; then
         # Download and run the nvm installation script
         curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
         
@@ -700,7 +700,7 @@ install_nvm() {
         [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
         
         # Verify installation
-        if ! command -v nvm &> /dev/null; then
+        if ! command -v nvm >/dev/null 2>&1; then
             log_error "Failed to install NVM. Please install it manually:"
             echo "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash"
             exit 1
@@ -734,13 +734,13 @@ setup_node() {
     log_verbose "Setting up Node.js environment..."
     
     # Verify Node.js installation
-    if ! command -v node &> /dev/null; then
+    if ! command -v node >/dev/null 2>&1; then
         log_error "Node.js is not installed"
         exit 1
     fi
     
     # Install pnpm if not present
-    if ! command -v pnpm &> /dev/null; then
+    if ! command -v pnpm >/dev/null 2>&1; then
         log_info "Installing pnpm..."
         if ! npm install -g pnpm; then
             log_error "Failed to install pnpm"
